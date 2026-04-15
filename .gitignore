@@ -1,0 +1,6 @@
+*.bak
+*.backup*
+*.orig
+.DS_Store
+fish/.config/fish/fish_variables
+gh/.config/gh/hosts.yml

@@ -1,0 +1,171 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+STAMP="$(date +%Y%m%d-%H%M%S)"
+VERBOSE=0
+DRY_RUN=0
+
+PKG_COUNT=0
+FILE_COUNT=0
+OK_COUNT=0
+LINK_COUNT=0
+MOVE_COUNT=0
+RM_COUNT=0
+MKDIR_COUNT=0
+
+list_packages() {
+  find "$DOTFILES" -mindepth 1 -maxdepth 1 -type d \
+    ! -name .git \
+    ! -name docs \
+    ! -name scripts \
+    -printf '%f\n' | sort
+}
+
+usage() {
+  cat <<'EOF'
+Usage:
+  ./scripts/link              # link all packages
+  ./scripts/link all          # link all packages
+  ./scripts/link fish tmux    # link selected packages
+  ./scripts/link -n           # dry run
+  ./scripts/link -v fish      # verbose filesystem ops
+  ./scripts/link --list       # show package names
+EOF
+}
+
+action() {
+  local op="$1"
+  shift
+
+  if ((DRY_RUN)); then
+    printf 'dry  %s %s\n' "$op" "$*"
+  else
+    printf '%-4s %s\n' "$op" "$*"
+  fi
+}
+
+vcmd() {
+  ((VERBOSE)) || return 0
+
+  if ((DRY_RUN)); then
+    printf 'dry  '
+  fi
+
+  printf '%q ' "$@"
+  printf '\n'
+}
+
+ensure_parent() {
+  local parent="$1"
+
+  [[ -d "$parent" ]] && return 0
+
+  MKDIR_COUNT=$((MKDIR_COUNT + 1))
+  vcmd mkdir -p "$parent"
+  ((DRY_RUN)) || mkdir -p "$parent"
+}
+
+link_pkg() {
+  local pkg="$1"
+  local root="$DOTFILES/$pkg"
+
+  [[ -d "$root" ]] || {
+    echo "skip: missing package $pkg" >&2
+    return 1
+  }
+
+  PKG_COUNT=$((PKG_COUNT + 1))
+  ((VERBOSE)) && echo "package $pkg"
+
+  while IFS= read -r -d '' src; do
+    local rel target parent current backup
+    FILE_COUNT=$((FILE_COUNT + 1))
+
+    rel="${src#"$root"/}"
+    target="$HOME/$rel"
+    parent="$(dirname "$target")"
+    backup="$target.backup.$STAMP"
+
+    ensure_parent "$parent"
+
+    if [[ -L "$target" ]]; then
+      current="$(readlink -f "$target" || true)"
+      if [[ "$current" == "$src" ]]; then
+        OK_COUNT=$((OK_COUNT + 1))
+        action ok "$rel"
+        continue
+      fi
+
+      RM_COUNT=$((RM_COUNT + 1))
+      vcmd rm -f "$target"
+      ((DRY_RUN)) || rm -f "$target"
+    fi
+
+    if [[ -e "$target" && ! -L "$target" ]]; then
+      MOVE_COUNT=$((MOVE_COUNT + 1))
+      action mv "$rel -> $rel.backup.$STAMP"
+      vcmd mv -- "$target" "$backup"
+      ((DRY_RUN)) || mv "$target" "$backup"
+    fi
+
+    LINK_COUNT=$((LINK_COUNT + 1))
+    action link "$rel"
+    vcmd ln -s "$src" "$target"
+    ((DRY_RUN)) || ln -s "$src" "$target"
+  done < <(find "$root" -type f -print0)
+}
+
+mode="link"
+all=0
+declare -a packages=()
+
+for arg in "$@"; do
+  case "$arg" in
+    -v|--verbose)
+      VERBOSE=1
+      ;;
+    -n|--dry-run)
+      DRY_RUN=1
+      ;;
+    --list|list)
+      mode="list"
+      ;;
+    -h|--help|help)
+      mode="help"
+      ;;
+    all|--all)
+      all=1
+      ;;
+    -*)
+      echo "unknown option: $arg" >&2
+      usage >&2
+      exit 1
+      ;;
+    *)
+      packages+=("$arg")
+      ;;
+  esac
+done
+
+case "$mode" in
+  help)
+    usage
+    exit 0
+    ;;
+  list)
+    list_packages
+    exit 0
+    ;;
+esac
+
+if ((all)) || ((${#packages[@]} == 0)); then
+  mapfile -t packages < <(list_packages)
+fi
+
+for pkg in "${packages[@]}"; do
+  [[ -n "$pkg" ]] || continue
+  link_pkg "$pkg"
+done
+
+echo "summary: mode=$([[ $DRY_RUN -eq 1 ]] && echo dry-run || echo live) packages=$PKG_COUNT files=$FILE_COUNT ok=$OK_COUNT linked=$LINK_COUNT moved=$MOVE_COUNT removed=$RM_COUNT mkdir=$MKDIR_COUNT"
