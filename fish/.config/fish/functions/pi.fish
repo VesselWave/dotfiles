@@ -1,4 +1,26 @@
 function pi
+    set -l last_check_dir "$HOME/.cache/pi"
+    set -l last_check_file "$last_check_dir/updater_last_check"
+    set -l today (date "+%Y-%m-%d")
+    set -l last_check
+
+    mkdir -p "$last_check_dir"
+
+    if test -f "$last_check_file"
+        set last_check (cat "$last_check_file")
+    end
+
+    if test "$last_check" != "$today"
+        set -l update_check (npm outdated -g -p @mariozechner/pi-coding-agent 2>/dev/null)
+
+        if test -n "$update_check"
+            echo "Update found! Updating @mariozechner/pi-coding-agent..."
+            npm update -g @mariozechner/pi-coding-agent
+        end
+
+        echo "$today" > "$last_check_file"
+    end
+
     set home (realpath ~)
 
     if test (pwd -P) = "$home"
