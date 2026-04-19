@@ -1,7 +1,4 @@
-spawn-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1"
-//spawn-at-startup "sh" "-c" "eval $(gnome-keyring-daemon --start --components=pkcs11,secrets,ssh) && export SSH_AUTH_SOCK && dbus-update-activation-environment --systemd SSH_AUTH_SOCK GNOME_KEYRING_CONTROL GNOME_KEYRING_SCREEN_SAVER"
 //spawn-at-startup "udiskie" "--smart-tray"
-//spawn-at-startup "gnome-keyring-daemon" "--start" "--components=secrets"
 spawn-at-startup "pkill" "-x" "ksecretd"
 
 //debug {
