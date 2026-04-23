@@ -40,7 +40,8 @@ function notify_long_running --on-event fish_postexec
     set -l threshold (math $LONG_RUNNING_SEC x 1000)
     set -l last_cmd $argv[1]
     set -l cmd_name (string split -f 1 " " $last_cmd)
-    set -l excluded_cmds vim vi nvim nano less man ssh top htop tmux screen git-log gemini claude pi
+    set -l excluded_cmds vim vi nvim nano less man ssh top htop tmux screen \
+	    git-log gemini claude pi bun node
 
     if contains $cmd_name $excluded_cmds
         return
