@@ -5,6 +5,7 @@ DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 VERBOSE=0
 DRY_RUN=0
+ADOPT_CMDS=0
 
 PKG_COUNT=0
 FILE_COUNT=0
@@ -13,6 +14,7 @@ LINK_COUNT=0
 MOVE_COUNT=0
 RM_COUNT=0
 MKDIR_COUNT=0
+ADOPT_COUNT=0
 
 list_packages() {
   find "$DOTFILES" -mindepth 1 -maxdepth 1 -type d \
@@ -25,12 +27,13 @@ list_packages() {
 usage() {
   cat <<'EOF'
 Usage:
-  ./scripts/link              # link all packages
-  ./scripts/link all          # link all packages
-  ./scripts/link fish tmux    # link selected packages
-  ./scripts/link -n           # dry run
-  ./scripts/link -v fish      # verbose filesystem ops
-  ./scripts/link --list       # show package names
+  ./scripts/link                    # link all packages
+  ./scripts/link all                # link all packages
+  ./scripts/link fish tmux          # link selected packages
+  ./scripts/link -n                 # dry run
+  ./scripts/link --adopt-cmds fish  # print suggested mv commands
+  ./scripts/link -v fish            # verbose filesystem ops
+  ./scripts/link --list             # show package names
 EOF
 }
 
@@ -56,6 +59,65 @@ vcmd() {
   printf '\n'
 }
 
+print_arg() {
+  local arg="$1" rel
+
+  if [[ "$arg" == "$HOME" ]]; then
+    printf '~'
+    return 0
+  fi
+
+  if [[ "$arg" == "$HOME/"* ]]; then
+    rel="${arg#"$HOME"/}"
+    printf '~/'
+    printf '%q' "$rel"
+    return 0
+  fi
+
+  printf '%q' "$arg"
+}
+
+style_name() {
+  local name="$1"
+
+  if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+    printf '\033[1;3;36m%s\033[0m' "$name"
+  else
+    printf '%s' "$name"
+  fi
+}
+
+print_source_arg() {
+  local arg="$1" dir base rendered_dir rendered_base
+
+  dir="$(dirname "$arg")"
+  base="$(basename "$arg")"
+  rendered_base="$(print_arg "$base")"
+
+  if [[ "$dir" == "." ]]; then
+    style_name "$rendered_base"
+    return 0
+  fi
+
+  rendered_dir="$(print_arg "$dir")"
+  if [[ "$rendered_dir" == "~" ]]; then
+    printf '~/'
+  else
+    printf '%s/' "$rendered_dir"
+  fi
+  style_name "$rendered_base"
+}
+
+print_adopt_cmd() {
+  local src="$1" dest_dir="$2"
+
+  printf 'mv -- '
+  print_source_arg "$src"
+  printf ' '
+  print_arg "$dest_dir"
+  printf '/\n'
+}
+
 ensure_parent() {
   local parent="$1"
 
@@ -64,6 +126,95 @@ ensure_parent() {
   MKDIR_COUNT=$((MKDIR_COUNT + 1))
   vcmd mkdir -p "$parent"
   ((DRY_RUN)) || mkdir -p "$parent"
+}
+
+git_ignored() {
+  local path="$1"
+
+  git -C "$DOTFILES" rev-parse --is-inside-work-tree >/dev/null 2>&1 || return 1
+  git -C "$DOTFILES" check-ignore -q -- "$path"
+}
+
+skip_adopt_name() {
+  local name="$1"
+
+  case "$name" in
+    *.backup.*|*.bak|*.bak-*|*.orig|*.old|*~|*.swp|*.swo|*.tmp)
+      return 0
+      ;;
+  esac
+
+  return 1
+}
+
+adopt_pkg() {
+  local pkg="$1"
+  local root="$DOTFILES/$pkg"
+
+  [[ -d "$root" ]] || {
+    echo "skip: missing package $pkg" >&2
+    return 1
+  }
+
+  PKG_COUNT=$((PKG_COUNT + 1))
+
+  local -A dirs=()
+  local src rel rel_dir parent dir entry current name repo_dest repo_dir repo_rel has_repo_symlink
+
+  while IFS= read -r -d '' src; do
+    rel="${src#"$root"/}"
+    rel_dir="$(dirname "$rel")"
+    if [[ "$rel_dir" == "." ]]; then
+      parent="$HOME"
+    else
+      parent="$HOME/$rel_dir"
+    fi
+    [[ "$parent" == "$HOME" ]] && continue
+    dirs["$parent"]=1
+  done < <(find "$root" -type f -print0)
+
+  for dir in "${!dirs[@]}"; do
+    [[ -d "$dir" ]] || continue
+
+    has_repo_symlink=0
+    while IFS= read -r -d '' entry; do
+      [[ -L "$entry" ]] || continue
+      current="$(readlink -f "$entry" || true)"
+      [[ -n "$current" ]] || continue
+      case "$current" in
+        "$root"/*)
+          has_repo_symlink=1
+          break
+          ;;
+      esac
+    done < <(find "$dir" -mindepth 1 -maxdepth 1 -print0)
+
+    ((has_repo_symlink)) || continue
+
+    while IFS= read -r -d '' entry; do
+      [[ -f "$entry" && ! -L "$entry" ]] || continue
+
+      name="$(basename "$entry")"
+      skip_adopt_name "$name" && continue
+
+      rel="${entry#"$HOME"/}"
+      repo_dest="$root/$rel"
+      repo_dir="$(dirname "$repo_dest")"
+      repo_rel="$pkg/$rel"
+
+      if [[ -e "$repo_dest" || -L "$repo_dest" ]]; then
+        continue
+      fi
+
+      if git_ignored "$repo_rel"; then
+        continue
+      fi
+
+      ADOPT_COUNT=$((ADOPT_COUNT + 1))
+      ((VERBOSE)) && printf '# adopt candidate: %s -> %s\n' "$rel" "$repo_rel"
+      print_adopt_cmd "$entry" "$repo_dir"
+    done < <(find "$dir" -mindepth 1 -maxdepth 1 -type f -print0)
+  done
 }
 
 link_pkg() {
@@ -128,6 +279,9 @@ for arg in "$@"; do
     -n|--dry-run)
       DRY_RUN=1
       ;;
+    -a|--adopt|--adopt-cmds)
+      ADOPT_CMDS=1
+      ;;
     --list|list)
       mode="list"
       ;;
@@ -161,6 +315,16 @@ esac
 
 if ((all)) || ((${#packages[@]} == 0)); then
   mapfile -t packages < <(list_packages)
+fi
+
+if ((ADOPT_CMDS)); then
+  for pkg in "${packages[@]}"; do
+    [[ -n "$pkg" ]] || continue
+    adopt_pkg "$pkg"
+  done
+
+  ((VERBOSE)) && echo "# summary: mode=adopt-cmds packages=$PKG_COUNT candidates=$ADOPT_COUNT"
+  exit 0
 fi
 
 for pkg in "${packages[@]}"; do

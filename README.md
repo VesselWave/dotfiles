@@ -59,6 +59,15 @@ Preview changes without touching filesystem:
 ./scripts/link -n fish tmux
 ```
 
+Print suggested adopt commands for unmanaged sibling files near existing repo symlinks:
+
+```bash
+./scripts/link --adopt-cmds fish
+./scripts/link --adopt-cmds fish tmux
+# output like:
+# mv -- ~/.config/fish/functions/fisher.fish ~/repos/dotfiles/fish/.config/fish/functions/
+```
+
 Show exact filesystem ops too:
 
 ```bash
@@ -132,6 +141,41 @@ cp ~/.config/kitty/kitty.conf kitty/.config/kitty/kitty.conf
 ```
 
 If target file in `$HOME` already exists and is not symlinked, `scripts/link` will move it to `*.backup.<timestamp>` before linking repo version.
+
+### Adopt commands mode
+
+`./scripts/link --adopt-cmds ...` is a lightweight `stow --adopt`-style helper, but it never moves files for you.
+
+What it does:
+- looks in package-managed subdirs under `$HOME`
+- only scans dirs that already contain at least one symlink into that package
+- skips `$HOME` root itself, so it will not sweep random top-level files
+- skips paths already present in repo
+- skips files ignored by git and obvious backup/temp names
+- prints shell-safe `mv -- ... ...` commands with `~` paths
+- highlights source filename in terminal output, still shell-safe for spaces
+- destination is directory only
+- `-v` adds candidate comments and summary
+- leaves selection to you
+
+Example:
+- `~/.config/fish/functions/fisher.fish` next to repo symlinked Fish functions
+- command mode prints move command into `fish/.config/fish/functions/fisher.fish`
+- you run only commands you want, then link package normally
+
+Typical flow:
+
+```bash
+./scripts/link --adopt-cmds fish
+# run selected mv commands manually
+./scripts/link fish
+```
+
+Verbose preview:
+
+```bash
+./scripts/link --adopt-cmds -v fish
+```
 
 ## Fish
 
