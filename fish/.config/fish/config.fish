@@ -5,68 +5,47 @@ if status is-interactive
 end
 
 set fish_greeting
+set -gx EDITOR vim
 
-for p in \
+set -l paths \
     /usr/local/go/bin \
     $HOME/go/bin \
-    $HOME/.nvm/versions/node/v22.18.0/bin \
     $HOME/apps/flutter/bin \
     $HOME/.npm-global/bin \
     $HOME/.local/bin
+
+for p in $paths
     if test -d $p
         fish_add_path $p
     end
 end
 
-alias ll="ls -lah"
-set -gx EDITOR vim
+set -l nvm_node_dir $HOME/.nvm/versions/node
+if test -d $nvm_node_dir
+    set -l latest_node_bin (find $nvm_node_dir -mindepth 2 -maxdepth 2 -type d -name bin | sort -Vr | head -n 1)
+
+    if test -n "$latest_node_bin"
+        fish_add_path $latest_node_bin
+    end
+end
+
+if test -d $HOME/.bun
+    set -gx BUN_INSTALL $HOME/.bun
+    fish_add_path $BUN_INSTALL/bin
+end
+
+alias cp='cp -i'
+alias ll='ls -lah'
+alias ls='ls -lah --color=always --group-directories-first'
+alias mkdir='mkdir -p'
+alias mv='mv -i'
+alias ping='ping -c 5'
+alias rm=' rm -I --preserve-root'
 
 if command -q conda
     conda shell.fish hook | source
 end
 
-if test -d $HOME/.bun
-    set -gx BUN_INSTALL "$HOME/.bun"
-    fish_add_path $BUN_INSTALL/bin
+if command -q zoxide
+    zoxide init fish | source
 end
-
-alias ls='ls -lah --color=always --group-directories-first'
-alias rm=' rm -I --preserve-root'
-alias cp='cp -i'
-alias mv='mv -i'
-alias mkdir='mkdir -p'
-alias ping='ping -c 5'
-
-zoxide init fish | source
-
-set -g LONG_RUNNING_SEC 600
-
-function notify_long_running --on-event fish_postexec
-    set -l threshold (math $LONG_RUNNING_SEC x 1000)
-    set -l last_cmd $argv[1]
-    set -l cmd_name (string split -f 1 " " $last_cmd)
-    set -l excluded_cmds vim vi nvim nano less man ssh top htop tmux screen \
-	    git-log gemini claude pi bun node
-
-    if contains $cmd_name $excluded_cmds
-        return
-    end
-
-    if test $CMD_DURATION -gt $threshold
-        set -l time_secs (math -s1 $CMD_DURATION / 1000)
-
-        if test $status -eq 0
-            notify-send -u normal -i terminal \
-                "Task Finished ($time_secs s)" \
-                "$last_cmd"
-        else
-            notify-send -u critical -i error \
-                "Task Failed ($time_secs s)" \
-                "$last_cmd"
-        end
-    end
-end
-
-
-# Added by Antigravity CLI installer
-set -gx PATH "/home/user/.local/bin" $PATH
