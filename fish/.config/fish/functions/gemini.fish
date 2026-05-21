@@ -7,11 +7,11 @@ function gemini
     end
 
     if test "$last_check" != "$today"
-        set -l update_check (npm outdated -g -p @google/gemini-cli)
+        set -l update_check (bun outdated -g -p @google/gemini-cli)
 
         if test -n "$update_check"
             echo "Update found! Updating @google/gemini-cli..."
-            npm update -g @google/gemini-cli
+            bun update -g @google/gemini-cli
         end
 
         echo "$today" > "$last_check_file"

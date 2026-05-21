@@ -25,14 +25,19 @@ if command -q conda
     conda shell.fish hook | source
 end
 
-if command -q kiro
-    string match -q "$TERM_PROGRAM" "kiro"; and . (kiro --locate-shell-integration-path fish)
-end
-
 if test -d $HOME/.bun
     set -gx BUN_INSTALL "$HOME/.bun"
     fish_add_path $BUN_INSTALL/bin
 end
+
+alias ls='ls -lah --color=always --group-directories-first'
+alias rm=' rm -I --preserve-root'
+alias cp='cp -i'
+alias mv='mv -i'
+alias mkdir='mkdir -p'
+alias ping='ping -c 5'
+
+zoxide init fish | source
 
 set -g LONG_RUNNING_SEC 600
 
@@ -61,3 +66,7 @@ function notify_long_running --on-event fish_postexec
         end
     end
 end
+
+
+# Added by Antigravity CLI installer
+set -gx PATH "/home/user/.local/bin" $PATH
