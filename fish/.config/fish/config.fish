@@ -34,13 +34,20 @@ if test -d $HOME/.bun
     fish_add_path $BUN_INSTALL/bin
 end
 
+# Start SSH Agent if not already running
+if not set -q SSH_AUTH_SOCK
+    eval (ssh-agent -c) > /dev/null
+    # Automatically add your key on startup
+    ssh-add > /dev/null 2>&1
+end
+
 alias cp='cp -i'
 alias ll='ls -lah'
 alias ls='ls -lah --color=always --group-directories-first'
 alias mkdir='mkdir -p'
 alias mv='mv -i'
 alias ping='ping -c 5'
-alias rm=' rm -I --preserve-root'
+alias rm='rm -I --preserve-root'
 
 if command -q conda
     conda shell.fish hook | source

@@ -1,5 +1,7 @@
 //spawn-at-startup "udiskie" "--smart-tray"
 spawn-at-startup "pkill" "-x" "ksecretd"
+spawn-at-startup "~/scripts/dms-inhibit.sh"
+spawn-at-startup "~/scripts/niri-internal-monitor-auto.sh"
 
 //debug {
 //    render-drm-device "/dev/dri/renderD128"
