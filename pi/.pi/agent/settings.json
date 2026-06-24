@@ -1,0 +1,155 @@
+{
+  "lastChangelogVersion": "0.79.10",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.5",
+  "defaultThinkingLevel": "medium",
+  "compaction": {
+    "enabled": true
+  },
+  "subagents": {
+    "agentOverrides": {
+      "context-builder": {
+        "model": "openai-codex/gpt-5.4-mini",
+        "thinking": "medium"
+      },
+      "delegate": {
+        "model": "openai-codex/gpt-5.4-mini",
+        "thinking": "medium"
+      },
+      "oracle": {
+        "model": "openai-codex/gpt-5.4-mini",
+        "thinking": "medium"
+      },
+      "planner": {
+        "model": "openai-codex/gpt-5.4-mini",
+        "thinking": "medium"
+      },
+      "researcher": {
+        "model": "openai-codex/gpt-5.4-mini",
+        "thinking": "medium"
+      },
+      "reviewer": {
+        "model": "openai-codex/gpt-5.4-mini",
+        "thinking": "medium"
+      },
+      "scout": {
+        "model": "openai-codex/gpt-5.4-mini",
+        "thinking": "medium"
+      },
+      "worker": {
+        "model": "openai-codex/gpt-5.4-mini",
+        "thinking": "medium"
+      }
+    }
+  },
+  "packages": [
+    {
+      "source": "https://github.com/obra/superpowers",
+      "extensions": [],
+      "skills": [
+        "+skills/writing-plans/SKILL.md",
+        "+skills/verification-before-completion/SKILL.md",
+        "-skills/finishing-a-development-branch/SKILL.md",
+        "-skills/requesting-code-review/SKILL.md",
+        "-skills/receiving-code-review/SKILL.md",
+        "+skills/subagent-driven-development/SKILL.md",
+        "+skills/executing-plans/SKILL.md",
+        "+skills/dispatching-parallel-agents/SKILL.md",
+        "+skills/brainstorming/SKILL.md",
+        "+skills/test-driven-development/SKILL.md",
+        "+skills/writing-skills/SKILL.md",
+        "-skills/using-git-worktrees/SKILL.md"
+      ],
+      "prompts": [],
+      "themes": []
+    },
+    {
+      "source": "npm:pi-subagents",
+      "prompts": [
+        "-prompts/parallel-cleanup.md",
+        "-prompts/parallel-context-build.md",
+        "-prompts/parallel-handoff-plan.md",
+        "-prompts/parallel-research.md",
+        "-prompts/parallel-review.md"
+      ]
+    },
+    {
+      "source": "npm:pi-mcp-adapter",
+      "extensions": [],
+      "skills": [],
+      "prompts": [],
+      "themes": []
+    },
+    {
+      "source": "npm:@a5c-ai/babysitter-pi",
+      "extensions": [
+        "+extensions/index.ts"
+      ],
+      "skills": [
+        "+skills/assimilate/SKILL.md",
+        "+skills/babysit/SKILL.md",
+        "+skills/call/SKILL.md",
+        "+skills/cleanup/SKILL.md",
+        "+skills/contrib/SKILL.md",
+        "+skills/doctor/SKILL.md",
+        "+skills/forever/SKILL.md",
+        "+skills/help/SKILL.md",
+        "+skills/observe/SKILL.md",
+        "+skills/plan/SKILL.md",
+        "+skills/plugins/SKILL.md",
+        "+skills/project-install/SKILL.md",
+        "+skills/resume/SKILL.md",
+        "+skills/retrospect/SKILL.md",
+        "+skills/user-install/SKILL.md",
+        "+skills/yolo/SKILL.md"
+      ],
+      "prompts": [],
+      "themes": []
+    },
+    {
+      "source": "npm:pi-markdown-preview",
+      "extensions": [],
+      "skills": [],
+      "prompts": [],
+      "themes": []
+    },
+    {
+      "source": "npm:taskplane",
+      "extensions": [],
+      "skills": [],
+      "prompts": [],
+      "themes": []
+    },
+    {
+      "source": "/home/user/.pi/agent/local-packages/pi-docparser-src",
+      "extensions": [],
+      "skills": [],
+      "prompts": [],
+      "themes": []
+    },
+    "npm:pi-web-access",
+    "npm:@llblab/pi-telegram",
+    "npm:@ayulab/pi-rewind"
+  ],
+  "prompts": [
+    "-prompts/normal.md",
+    "-prompts/lite.md",
+    "-prompts/full.md",
+    "-prompts/ultra.md"
+  ],
+  "skills": [
+    "-skills/caveman-review/SKILL.md",
+    "-skills/caveman-help/SKILL.md",
+    "-skills/caveman-compress/SKILL.md",
+    "-skills/caveman-commit/SKILL.md",
+    "+skills/caveman/SKILL.md",
+    "-skills/browser-tools/SKILL.md",
+    "-skills/browser-use/SKILL.md",
+    "+skills/browse/SKILL.md",
+    "+skills/impeccable/SKILL.md",
+    "+skills/pi-docs/SKILL.md",
+    "-skills/convex-quickstart/SKILL.md"
+  ],
+  "hideThinkingBlock": true,
+  "theme": "dark"
+}
