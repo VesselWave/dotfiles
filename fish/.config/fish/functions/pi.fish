@@ -22,6 +22,10 @@ function pi
             return $status
         case '*'
             $py $argv
-            return $status
+            set -l st $status
+            if test $st -eq 0; and test "$argv[1]" = update
+                ~/scripts/pi-patch-package-update-age
+            end
+            return $st
     end
 end

@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -euo pipefail
+file="$HOME/.npm-global/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/package-manager.js"
+[[ -f "$file" ]] || exit 0
+grep -q 'NPM_UPDATE_NOTIFICATION_MIN_AGE_MS' "$file" && exit 0
+
+python3 - "$file" <<'PY'
+from pathlib import Path
+import sys
+p = Path(sys.argv[1])
+s = p.read_text()
+s = s.replace(
+"const NETWORK_TIMEOUT_MS = 10000;\nconst UPDATE_CHECK_CONCURRENCY = 4;\nconst GIT_UPDATE_CONCURRENCY = 4;",
+"const NETWORK_TIMEOUT_MS = 10000;\nconst UPDATE_CHECK_CONCURRENCY = 4;\nconst GIT_UPDATE_CONCURRENCY = 4;\nconst NPM_UPDATE_NOTIFICATION_MIN_AGE_MS = 3 * 24 * 60 * 60 * 1000;"
+)
+s = s.replace(
+'''        try {
+            const targetVersion = await this.getLatestNpmVersion(source.version ? source.spec : source.name, source.range);
+            return targetVersion !== installedVersion;
+        }
+        catch {
+            return false;
+        }
+    }
+    getInstalledNpmVersion(installedPath) {''',
+'''        try {
+            const targetVersion = await this.getLatestNpmVersion(source.version ? source.spec : source.name, source.range);
+            if (targetVersion === installedVersion) {
+                return false;
+            }
+            const publishedAt = await this.getNpmVersionPublishedAt(source.name, targetVersion);
+            if (!publishedAt) {
+                return true;
+            }
+            return Date.now() - publishedAt.getTime() >= NPM_UPDATE_NOTIFICATION_MIN_AGE_MS;
+        }
+        catch {
+            return false;
+        }
+    }
+    getInstalledNpmVersion(installedPath) {'''
+)
+s = s.replace(
+'''    async gitHasAvailableUpdate(installedPath) {''',
+'''    async getNpmVersionPublishedAt(packageName, version) {
+        const npmCommand = this.getNpmCommand();
+        const stdout = await this.runCommandCapture(npmCommand.command, [...npmCommand.args, "view", packageName, "time", "--json"], { cwd: this.cwd, timeoutMs: NETWORK_TIMEOUT_MS });
+        const raw = stdout.trim();
+        if (!raw)
+            return undefined;
+        const parsed = JSON.parse(raw);
+        const value = parsed?.[version];
+        if (typeof value !== "string") {
+            return undefined;
+        }
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? undefined : date;
+    }
+    async gitHasAvailableUpdate(installedPath) {''', 1
+)
+p.write_text(s)
+PY
