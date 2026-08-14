@@ -21,7 +21,12 @@ function pi
             $py last
             return $status
         case '*'
-            $py $argv
+            set -l pi_args $argv
+            if test "$argv[1]" = update; and test (count $argv) -eq 1
+                set pi_args update --all
+            end
+
+            $py $pi_args
             set -l st $status
             if test $st -eq 0; and test "$argv[1]" = update
                 ~/scripts/pi-patch-package-update-age

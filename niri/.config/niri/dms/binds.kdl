@@ -6,7 +6,7 @@ binds {
     Mod+D repeat=false { toggle-overview; }
     Mod+Tab repeat=false { toggle-overview; }
     Mod+Shift+Slash { show-hotkey-overlay; }
-    Alt+Space hotkey-overlay-title="Keyboard Layout: EN/RU" {
+    Alt+Space allow-when-locked=true hotkey-overlay-title="Keyboard Layout: EN/RU" {
         spawn "sh" "-lc" "$HOME/.local/bin/niri-layout-main-toggle";
     }
     Alt+Ctrl+Space hotkey-overlay-title="Keyboard Layout: Ukrainian" { switch-layout "1"; }

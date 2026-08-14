@@ -3,6 +3,9 @@
 #  "~/.config/alacritty/dank-theme.toml"
 #]
 
+[font]
+size = 11.25
+
 [font.normal]
 family = "DejaVu Sans Mono"
 

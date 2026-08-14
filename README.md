@@ -4,7 +4,7 @@ My current shell + terminal + editor + compositor setup, split into simple packa
 
 Configs included here:
 - Shell: [fish](fish/.config/fish)
-- Terminal: [Alacritty](alacritty/.config/alacritty)
+- Terminals: [Alacritty](alacritty/.config/alacritty), [Kitty](kitty/.config/kitty)
 - Multiplexer: [tmux](tmux/.config/tmux/tmux.conf)
 - Editor: [Vim](vim/.vimrc)
 - Compositor: [niri](niri/.config/niri)
@@ -33,6 +33,7 @@ Each top-level directory is one package:
 
 - `fish` → `~/.config/fish/...`
 - `alacritty` → `~/.config/alacritty/...`
+- `kitty` → `~/.config/kitty/...`
 - `tmux` → `~/.config/tmux/...`
 - `vim` → `~/.vimrc`
 - `niri` → `~/.config/niri/...`
@@ -86,7 +87,7 @@ Every run ends with summary counts.
 
 ## How `scripts/link` works
 
-For each file inside package dirs like `fish/`, `alacritty/`, `tmux/`, `vim/`, `niri/`:
+For each file inside package dirs like `fish/`, `alacritty/`, `kitty/`, `tmux/`, `vim/`, `niri/`:
 
 1. script strips package root
 2. maps remaining path into `$HOME`
@@ -198,6 +199,11 @@ Notes:
 Included:
 - main config: [alacritty.toml](alacritty/.config/alacritty/alacritty.toml)
 - theme file: [dank-theme.toml](alacritty/.config/alacritty/dank-theme.toml)
+
+## Kitty
+
+Included:
+- main config: [kitty.conf](kitty/.config/kitty/kitty.conf)
 
 ## niri
 

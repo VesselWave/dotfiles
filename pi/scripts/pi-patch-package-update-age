@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
-file="$HOME/.npm-global/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/package-manager.js"
-[[ -f "$file" ]] || exit 0
-grep -q 'NPM_UPDATE_NOTIFICATION_MIN_AGE_MS' "$file" && exit 0
 
-python3 - "$file" <<'PY'
+root="$HOME/.npm-global/lib/node_modules/@earendil-works/pi-coding-agent/dist"
+pm_file="$root/core/package-manager.js"
+cli_file="$root/package-manager-cli.js"
+interactive_file="$root/modes/interactive/interactive-mode.js"
+
+patch_npm_update_age() {
+  local file="$pm_file"
+  [[ -f "$file" ]] || return 0
+  grep -q 'NPM_UPDATE_NOTIFICATION_MIN_AGE_MS' "$file" && return 0
+
+  python3 - "$file" <<'PY'
 from pathlib import Path
 import sys
 p = Path(sys.argv[1])
@@ -60,3 +67,56 @@ s = s.replace(
 )
 p.write_text(s)
 PY
+}
+
+patch_cli_extensions_skipped_note() {
+  local file="$cli_file"
+  [[ -f "$file" ]] || return 0
+  grep -q 'Extensions update skipped note disabled by local patch' "$file" && return 0
+
+  python3 - "$file" <<'PY'
+from pathlib import Path
+import sys
+p = Path(sys.argv[1])
+s = p.read_text()
+s = s.replace(
+'''                if (options.showExtensionsSkippedNote) {
+                    console.log(chalk.dim(`Extensions are skipped. Run ${APP_NAME} update --extensions to update extensions.`));
+                }''',
+'''                if (options.showExtensionsSkippedNote) {
+                    // Extensions update skipped note disabled by local patch.
+                }'''
+)
+p.write_text(s)
+PY
+}
+
+patch_interactive_package_update_notification() {
+  local file="$interactive_file"
+  [[ -f "$file" ]] || return 0
+  grep -q 'Package update notification disabled by local patch' "$file" && return 0
+
+  python3 - "$file" <<'PY'
+from pathlib import Path
+import sys
+p = Path(sys.argv[1])
+s = p.read_text()
+s = s.replace(
+'''    async checkForPackageUpdates() {
+        if (process.env.PI_OFFLINE) {
+            return [];
+        }''',
+'''    async checkForPackageUpdates() {
+        // Package update notification disabled by local patch.
+        return [];
+        if (process.env.PI_OFFLINE) {
+            return [];
+        }'''
+)
+p.write_text(s)
+PY
+}
+
+patch_npm_update_age
+patch_cli_extensions_skipped_note
+patch_interactive_package_update_notification

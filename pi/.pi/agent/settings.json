@@ -142,7 +142,7 @@
     "-skills/caveman-help/SKILL.md",
     "-skills/caveman-compress/SKILL.md",
     "-skills/caveman-commit/SKILL.md",
-    "+skills/caveman/SKILL.md",
+    "-skills/caveman/SKILL.md",
     "-skills/browser-tools/SKILL.md",
     "-skills/browser-use/SKILL.md",
     "+skills/browse/SKILL.md",

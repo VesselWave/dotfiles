@@ -1,9 +1,43 @@
 function wire
-    set compose_cmd sudo docker compose --project-directory ~/repos/wire-proxy-docker -f ~/repos/wire-proxy-docker/compose.yaml
+    set repo ~/repos/wire-proxy-docker
+    set conf_dir $repo/wg-client/wg_confs
+    set dest $conf_dir/wg0.conf
+    set last $repo/.wire-last-conf
+    set compose_cmd sudo docker compose --project-directory $repo -f $repo/compose.yaml
 
     if test (count $argv) -eq 0
-        echo "Usage: wire [up|down|logs|restart|...]"
-        return 1
+        if not test -f $last
+            echo "Usage: wire /path/to/AirVPN.conf"
+            echo "   or: wire [up|down|logs|restart|...]"
+            return 1
+        end
+
+        set conf (string collect < $last)
+        if not test -f "$conf"
+            echo "wire: saved config not found: $conf"
+            echo "wire: run again with: wire /path/to/AirVPN.conf"
+            return 1
+        end
+
+        mkdir -p $conf_dir
+        cp "$conf" $dest
+        chmod 600 $dest 2>/dev/null
+        $compose_cmd up -d
+        mullvad-browser about:preferences &>/dev/null &
+        disown
+        return
+    end
+
+    if test -f "$argv[1]"
+        set conf "$argv[1]"
+        mkdir -p $conf_dir
+        cp "$conf" $dest
+        chmod 600 $dest 2>/dev/null
+        printf '%s\n' "$conf" > $last
+        $compose_cmd up -d
+        mullvad-browser about:preferences &>/dev/null &
+        disown
+        return
     end
 
     switch "$argv[1]"

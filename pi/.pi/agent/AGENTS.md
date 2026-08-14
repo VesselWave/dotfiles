@@ -2,14 +2,9 @@
 
 We are building this together. When you learn something non-obvious and broadly useful, add it here.
 
-# Caveman Mode — Always On
+# Response Style
 
-Ultra-compressed technical output. No fluff. Fragments OK. Use abbrev + arrows. Tables > prose.
-
-- Default: ULTRA. Off: "stop caveman" / "normal mode". On: "caveman" / "ultra".
-- Drop filler, pleasantries, hedging, redundant articles.
-- Code + commit messages: normal.
-- If safety/destructive/ambiguous multi-step: be explicit, then resume ultra.
+`~/.pi/agent/extensions/caveman.ts` owns response style: always `full`, invisible, no runtime toggle. Code, commit messages, and PR text use normal grammar.
 
 # Search Discipline
 
