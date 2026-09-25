@@ -14,6 +14,26 @@ function pi
             cd "$target"
             $py resume $argv[2]
             return $status
+        case clone
+            if test (count $argv) -ne 2
+                echo "Usage: pi clone <repo>" >&2
+                return 2
+            end
+
+            set -l repo $argv[2]
+            set -l name (string replace -r '/+$' '' -- "$repo" | string replace -r '^.*/' '' | string replace -r '\.git$' '')
+            if test -z "$name"
+                echo "Cannot determine repo name: $repo" >&2
+                return 2
+            end
+
+            set -l target "$HOME/repos/$name"
+            git clone "$repo" "$target"
+            or return $status
+            cd "$target"
+            or return 1
+            $py
+            return $status
         case last
             set -l target ($py cd)
             or return 1

@@ -217,6 +217,9 @@ binds {
 
     // === Screenshots ===
     Print { spawn "sh" "-lc" "$HOME/.local/bin/niri-shot"; }
+    Ctrl+Print hotkey-overlay-title="Full Screen Screenshot" {
+        spawn "sh" "-lc" "$HOME/.local/bin/niri-shot --full";
+    }
     // Screenshot a selected region and copy to clipboard
     //Mod+Shift+S { spawn "sh" "-c" "grim -g \"$(slurp)\" - | wl-copy"; }
 
