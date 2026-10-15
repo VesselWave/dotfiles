@@ -1,12 +1,34 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "env": {
+    "DISABLE_TELEMETRY": "1",
+    "DISABLE_ERROR_REPORTING": "1"
+  },
   "attribution": {
     "commit": "",
     "pr": "",
     "sessionUrl": false
   },
+  "permissions": {
+    "deny": [
+      "SendMessage",
+      "Workflow",
+      "ScheduleWakeup",
+      "CronCreate",
+      "CronDelete",
+      "CronList",
+      "EnterWorktree",
+      "ExitWorktree",
+      "ReportFindings",
+      "ListAgents",
+      "TaskStop",
+      "mcp__*"
+    ]
+  },
   "model": "sonnet",
   "effortLevel": "medium",
+  "tui": "fullscreen",
+  "autoMemoryEnabled": false,
   "skipDangerousModePermissionPrompt": true,
   "theme": "dark"
 }

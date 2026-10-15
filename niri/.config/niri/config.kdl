@@ -289,6 +289,11 @@ window-rule {
     match app-id="zoom"
     open-floating true
 }
+// Proton games under xwayland-satellite don't reliably request fullscreen
+window-rule {
+    match app-id=r#"^steam_app_\d+$"#
+    open-fullscreen true
+}
 // Open dms windows as floating by default
 window-rule {
     match app-id=r#"org.quickshell$"#
@@ -317,3 +322,5 @@ include "dms/outputs.kdl"
 include "dms/cursor.kdl"
 
 include "dms/windowrules.kdl"
+
+include "openwhispr.kdl"
