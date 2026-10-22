@@ -265,6 +265,14 @@ link_pkg() {
     vcmd ln -s "$src" "$target"
     ((DRY_RUN)) || ln -s "$src" "$target"
   done < <(find "$root" -type f -print0)
+
+  if [[ "$pkg" == "dms" ]] && ((!DRY_RUN)); then
+    if command -v dms >/dev/null && command -v jq >/dev/null && dms ipc call audio getmaxvolume >/dev/null 2>&1; then
+      "$root/.local/bin/dms-apply-audio-preferences"
+    else
+      echo "DMS audio preferences: run ~/.local/bin/dms-apply-audio-preferences after starting DMS (requires jq)."
+    fi
+  fi
 }
 
 mode="link"

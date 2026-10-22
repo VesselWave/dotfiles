@@ -1,0 +1,18 @@
+{
+  "lockfileVersion": 1,
+  "plugins": {
+    "audioInhibit": {
+      "repo": "https://github.com/insecure/dms-audio-inhibit",
+      "commit": "eefccb20299d8d79089d3d976ca1505ae16d3e27"
+    },
+    "caffeineRedesigned": {
+      "repo": "https://github.com/JDKamalakar/DMS-Caffeine",
+      "commit": "8d2e19bc1cde57aa7339b055d2bb385b36e00928"
+    },
+    "dankKDEConnect": {
+      "repo": "https://github.com/AvengeMedia/dms-plugins",
+      "path": "DankKDEConnect",
+      "commit": "6fc7f25bfb24f93b6488fb8a36ed67b5f242abdb"
+    }
+  }
+}

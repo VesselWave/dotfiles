@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+preferences="${XDG_CONFIG_HOME:-$HOME/.config}/DankMaterialShell/audio-max-volumes.json"
+
+command -v dms >/dev/null
+command -v jq >/dev/null
+[[ -f "$preferences" ]]
+
+# Address saved device names rather than whichever output happens to be active.
+jq -e 'type == "object" and all(.[]; type == "number" and . >= 100 and . <= 200 and . == floor)' "$preferences" >/dev/null
+while IFS= read -r entry; do
+    device="$(jq -r '.key' <<< "$entry")"
+    limit="$(jq -r '.value' <<< "$entry")"
+    result="$(dms ipc call audio setmaxvolumefor "$device" "$limit")"
+    printf '%s\n' "$result"
+    [[ "$result" == "Max volume for $device set to $limit%" ]]
+done < <(jq -c 'to_entries[]' "$preferences")

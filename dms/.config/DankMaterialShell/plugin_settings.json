@@ -1,0 +1,18 @@
+{
+  "dmsLenovoBatterySettings": {
+    "enabled": false
+  },
+  "dankBatteryAlerts": {
+    "enabled": false,
+    "criticalThreshold": 5
+  },
+  "dankKDEConnect": {
+    "enabled": false
+  },
+  "audioInhibit": {
+    "enabled": false
+  },
+  "caffeineRedesigned": {
+    "enabled": false
+  }
+}

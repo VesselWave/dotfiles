@@ -37,6 +37,7 @@ Each top-level directory is one package:
 - `tmux` → `~/.config/tmux/...`
 - `vim` → `~/.vimrc`
 - `niri` → `~/.config/niri/...`
+- `dms` → `~/.config/DankMaterialShell/...`
 
 Link all current packages:
 
@@ -212,6 +213,16 @@ Included:
 - modular `dms/` config fragments
 
 This part is more machine-specific than shell/editor configs.
+
+## DankMaterialShell
+
+Included:
+- shell settings: [settings.json](dms/.config/DankMaterialShell/settings.json)
+- clipboard, plugin settings, and plugin lockfile
+- custom theme: [steamDeck](dms/.config/DankMaterialShell/themes/steamDeck/theme.json)
+- per-device audio limits (e.g. 150% max volume): [audio-max-volumes.json](dms/.config/DankMaterialShell/audio-max-volumes.json)
+
+DMS stores audio limits in `~/.local/state/DankMaterialShell/session.json` together with session state, so that file is not tracked. `./scripts/link dms` applies the tracked limits via DMS IPC when DMS is running; otherwise run `dms-apply-audio-preferences` later.
 
 ## Notes
 
