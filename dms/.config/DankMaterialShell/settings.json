@@ -91,6 +91,8 @@
     }
   },
   "notepadUseMonospace": false,
+  "useSystemSoundTheme": true,
+  "soundVolumeChanged": false,
   "acMonitorTimeout": 3600,
   "acLockTimeout": 900,
   "batteryMonitorTimeout": 900,
