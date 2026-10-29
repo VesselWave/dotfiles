@@ -103,21 +103,13 @@
       "enabled": true,
       "w": 1.5,
       "h": 1,
-      "col": 5.5,
+      "col": 1.5,
       "row": 4
     },
     {
       "id": "idleInhibitor",
       "enabled": true,
       "w": 1.5,
-      "h": 1,
-      "col": 4,
-      "row": 4
-    },
-    {
-      "id": "battery",
-      "enabled": true,
-      "w": 4,
       "h": 1,
       "col": 0,
       "row": 4
