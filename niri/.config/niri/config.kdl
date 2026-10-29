@@ -204,7 +204,8 @@ environment {
 hotkey-overlay {
     skip-at-startup
 }
-prefer-no-csd
+// Keep application title bars available for mouse dragging globally.
+// prefer-no-csd
 // screenshot-path "~/Pictures/Screenshots/Screenshot from %Y-%m-%d %H-%M-%S.png"
 animations {
     workspace-switch {
@@ -324,3 +325,5 @@ include "dms/cursor.kdl"
 include "dms/windowrules.kdl"
 
 include "openwhispr.kdl"
+
+include "personal.kdl"

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Junction stores its appearance in dconf, outside the linked config files.
+set -euo pipefail
+gsettings set re.sonny.Junction color-scheme 4

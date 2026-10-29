@@ -1,0 +1,28 @@
+// Personal rules and shortcuts; kept outside DMS-generated files.
+workspace "__hidden"
+
+// Browser-triggered KeePassXC unlock dialog.
+window-rule {
+    match app-id=r#"^org\.keepassxc\.KeePassXC$"# title=r#"^Unlock Database - KeePassXC$"#
+    open-floating true
+    default-column-width { fixed 720; }
+    default-window-height { fixed 420; }
+}
+
+window-rule {
+    match app-id=r#"^re\.sonny\.Junction$"#
+    open-floating true
+    default-column-width { fixed 720; }
+    default-window-height { fixed 240; }
+    default-floating-position x=280 y=160 relative-to="top-left"
+}
+
+binds {
+    // Super + left drag moves; Super + right drag resizes (built into Niri).
+    Mod+Minus hotkey-overlay-title="Hide window" {
+        spawn "python3" "/home/user/.config/niri/holding.py" "hide";
+    }
+    Mod+Shift+Minus hotkey-overlay-title="Restore last hidden window" {
+        spawn "python3" "/home/user/.config/niri/holding.py" "restore";
+    }
+}

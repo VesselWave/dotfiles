@@ -238,3 +238,18 @@ Open an issue in the repo.
 
 Other feedback welcome.
 - Email: vesselwave at protonmail dot com
+
+## Niri floating windows and Junction
+
+Personal settings live in `niri/.config/niri/personal.kdl`, outside DMS-generated files.
+Junction opens as a 720 × 240 floating chooser. Run `./scripts/junction-dark` after
+linking on a new machine to set its application appearance to dark.
+
+- Drag an application title bar to move its window; client-side decorations are enabled globally.
+- Super + left mouse drag anywhere in a window: move it (built into Niri, applies globally).
+- Super + right mouse drag: resize a window.
+- Super + Minus: hide the focused window on the `__hidden` workspace without following it.
+- Super + Shift + Minus: restore the most recently hidden window to the current workspace.
+- Super + Shift + T: toggle floating/tiling (existing DMS shortcut).
+
+Hidden windows stay open and can also be found on the `__hidden` workspace in Overview.
