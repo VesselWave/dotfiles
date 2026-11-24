@@ -22,7 +22,7 @@
       "ReportFindings",
       "ListAgents",
       "TaskStop",
-      "mcp__*"
+      "mcp__claude_ai_*"
     ]
   },
   "model": "sonnet",
